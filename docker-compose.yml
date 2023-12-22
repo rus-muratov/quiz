@@ -1,0 +1,43 @@
+version: "3"
+
+services:
+    db:
+        image: postgres:12
+        restart: always
+        volumes:
+            - ./db-data:/var/lib/postgresql/data
+        environment:
+            - POSTGRES_DB=${DB_DATABASE}
+            - POSTGRES_USER=${DB_USERNAME}
+            - POSTGRES_PASSWORD=${DB_PASSWORD}
+        ports:
+            - 15432:5432
+        networks:
+            - laravel_app
+    php:
+        build:
+            context: .
+        volumes:
+          - .:/var/www/html/
+        networks:
+            - laravel_app
+    nginx:
+        build:
+            context: .docker/nginx
+        volumes:
+          - .:/var/www/html
+        depends_on:
+             - php
+        ports:
+            - 80:80
+        networks:
+            - laravel_app
+        env_file:
+            - .docker/nginx/.env.nginx.local
+
+volumes:
+  symfony_app_var:
+  symfony_app_vendor:
+
+networks:
+    laravel_app:
